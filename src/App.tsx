@@ -111,7 +111,7 @@ const App = () => {
       risk: totalRisk,
       profit: riskRatio * totalRisk,
       takeProfit:
-        tradeType === "Long"
+        stopLoss < entryPrice
           ? entryPrice + riskPerShare * riskRatio
           : entryPrice - riskPerShare * riskRatio,
     });
@@ -301,6 +301,12 @@ const App = () => {
               נקה
             </Button>
           </div>
+
+          <span
+            style={{ color: "#5a5967", padding: "0.5rem", fontSize: "12px" }}
+          >
+            All rights reserved to Gal Aharon Web Development.
+          </span>
         </Form>
 
         <Modal

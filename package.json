@@ -12,6 +12,7 @@
     "dev": "vite",
     "build": "vite build",
     "deploy": "vite build && gh-pages -d dist -b gh-pages",
+    "serve": "serve -s dist",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {

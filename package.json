@@ -3,23 +3,17 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "engines": {
-    "node": "20.10.0",
-    "npm": "8.9.0"
-  },
   "scripts": {
-    "start": "vite preview",
     "dev": "vite",
     "build": "vite build",
     "deploy": "vite build && gh-pages -d dist -b gh-pages",
-    "serve": "serve -s dist",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
+    "@ant-design/icons": "^5.2.6",
     "antd": "^5.12.5",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "serve": "^14.2.1"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",

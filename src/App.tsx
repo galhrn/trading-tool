@@ -9,6 +9,7 @@ import {
   Modal,
   Layout,
   Collapse,
+  Tooltip,
 } from "antd";
 
 import styles from "./styles.module.scss";
@@ -16,6 +17,7 @@ import "antd/lib/style/index";
 
 import "./App.css";
 import { useEffect, useState } from "react";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 
@@ -150,6 +152,11 @@ const App = () => {
 
   const handleCollapseChange = (activeKeys: string | string[]) => {
     setIsSettingsOpen(activeKeys.includes("1"));
+  };
+
+  const generateTPtooltip = () => {
+    const direction = tradeType === "Long" ? "מעל" : "מתחת";
+    return `יש לשים לב כי מחיר ה-TP יכול להימצא ${direction} רמת התנגדות משמעותיות, ולכן יש לבחון האם נקודת המחיר הזו מתאימה לנו. אם לא, ניתן לשנות את יחס הסיכוי/סיכון בהתאם.`;
   };
 
   return (
@@ -355,16 +362,26 @@ const App = () => {
               <Space className={styles.formItemGroupContainer}>
                 <span>יעד הרווח הראשוני (TP):</span>
                 {currentStoredValues.takeProfit && (
-                  <Button
-                    type="link"
-                    size="small"
-                    className={styles.iconButton}
-                    onClick={() => {
-                      copyToClipboard(currentStoredValues.takeProfit);
-                    }}
-                  >
-                    {formatNumberToAmount(currentStoredValues.takeProfit)}
-                  </Button>
+                  <div>
+                    <Button
+                      type="link"
+                      size="small"
+                      className={styles.iconButton}
+                      onClick={() => {
+                        copyToClipboard(currentStoredValues.takeProfit);
+                      }}
+                    >
+                      {formatNumberToAmount(currentStoredValues.takeProfit)}
+                    </Button>
+                    <Tooltip
+                      overlayStyle={{ maxWidth: "400px" }}
+                      title={generateTPtooltip()}
+                    >
+                      <QuestionCircleOutlined
+                        style={{ color: "#213547", cursor: "pointer" }}
+                      />
+                    </Tooltip>
+                  </div>
                 )}
               </Space>
             </Space>

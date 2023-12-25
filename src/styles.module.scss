@@ -1,0 +1,127 @@
+.wrapper {
+  border-radius: 8px;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 20px 30px;
+  background: #1f2229;
+}
+
+.activeInput {
+  border: none;
+  width: 100%;
+  background: #13191a;
+}
+
+.fullWidht {
+  width: 100%;
+}
+
+.formItemContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  column-gap: 0.5rem;
+  width: max-content;
+
+  .formItemInputContainer {
+    width: 100%;
+    width: 16rem;
+  }
+}
+
+.formItem {
+  display: flex;
+  align-items: left;
+  justify-content: left;
+  width: auto;
+}
+
+.leftSideContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: normal;
+  row-gap: 0;
+  padding: 1rem 2rem 1rem 1rem;
+  border-right: 1px solid #f0f0f0;
+  background-color: aliceblue;
+  width: auto;
+}
+
+.rightSideContainer {
+  display: flex;
+  flex-direction: column;
+  width: 22.5rem;
+  align-items: normal;
+  padding: 1rem;
+  border-radius: 8px;
+  box-sizing: border-box;
+  row-gap: 0;
+}
+
+.container {
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  column-gap: 2rem;
+}
+
+.formContainer {
+  border-radius: 8px;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  justify-content: center;
+
+  .title {
+    color: #eeeeee;
+  }
+}
+
+.formItemGroupContainer {
+  display: flex;
+}
+
+.riskContainer {
+  display: flex;
+  margin: 0;
+}
+
+.settingsContainer {
+  row-gap: 0;
+  margin-top: 0.5rem;
+  background-color: #1d1f25;
+  border: 1px solid #282b35;
+}
+
+.innerInput {
+  border: none;
+  background-color: rgb(19, 25, 26);
+}
+
+.buttonContainer {
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.5rem;
+  bottom: 0;
+  width: 100%;
+  box-sizing: border-box;
+  left: 0;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+@media screen and (max-width: 768px) {
+  .wrapper {
+    width: 100%;
+    position: fixed;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    align-items: center;
+  }
+
+  .riskContainer {
+    width: 66%;
+  }
+}

@@ -17,7 +17,7 @@ import "antd/lib/style/index";
 
 import "./App.css";
 import { useEffect, useState } from "react";
-import { QuestionCircleOutlined } from "@ant-design/icons";
+import { QuestionCircleOutlined, RiseOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 
@@ -29,6 +29,8 @@ const App = () => {
   const [tradeType, setTradeType] = useState<"Long" | "Short">("Long");
 
   const [currentStoredValues, setCurrentStoredValues] = useState<{
+    entryPrice: number | undefined;
+    stopLoss: number | undefined;
     quantity: number | undefined;
     risk: number | undefined;
     profit: number | undefined;
@@ -37,6 +39,8 @@ const App = () => {
     portfolioRiskPercentage: number | undefined;
     portfolioBalance: number | undefined;
   }>({
+    stopLoss: undefined,
+    entryPrice: undefined,
     quantity: undefined,
     risk: undefined,
     profit: undefined,
@@ -109,6 +113,8 @@ const App = () => {
     // Set state
     setCurrentStoredValues({
       ...currentStoredValues,
+      entryPrice: entryPrice,
+      stopLoss: stopLoss,
       quantity: numberOfShares,
       risk: totalRisk,
       profit: riskRatio * totalRisk,
@@ -337,12 +343,31 @@ const App = () => {
                 copyToClipboard(tradeType);
               }}
             >
+              <RiseOutlined
+                style={{ transform: tradeType === "Long" ? "" : "scaleY(-1)" }}
+              />
               {tradeType}
             </Button>
           </Space>
 
           <Space style={{ justifyContent: "space-between", width: "100%" }}>
             <Space direction="vertical" style={{ rowGap: 0 }}>
+              <Space className={styles.formItemGroupContainer}>
+                <span>מחיר כניסה:</span>
+                {currentStoredValues.entryPrice && (
+                  <Button
+                    type="link"
+                    size="small"
+                    className={styles.iconButton}
+                    onClick={() => {
+                      copyToClipboard(currentStoredValues.entryPrice);
+                    }}
+                  >
+                    {currentStoredValues.entryPrice}
+                  </Button>
+                )}
+              </Space>
+
               <Space className={styles.formItemGroupContainer}>
                 <span>כמות לקניה:</span>
                 {currentStoredValues.quantity && (
@@ -360,7 +385,23 @@ const App = () => {
               </Space>
 
               <Space className={styles.formItemGroupContainer}>
-                <span>יעד הרווח הראשוני (TP):</span>
+                <span>Stop loss:</span>
+                {currentStoredValues.stopLoss && (
+                  <Button
+                    type="link"
+                    size="small"
+                    className={styles.iconButton}
+                    onClick={() => {
+                      copyToClipboard(currentStoredValues.stopLoss);
+                    }}
+                  >
+                    {currentStoredValues.stopLoss}
+                  </Button>
+                )}
+              </Space>
+
+              <Space className={styles.formItemGroupContainer}>
+                <span>Take profit:</span>
                 {currentStoredValues.takeProfit && (
                   <div>
                     <Button

@@ -9,6 +9,7 @@ import {
   Modal,
   Layout,
   Collapse,
+  Tooltip,
 } from "antd";
 
 import styles from "./styles.module.scss";
@@ -16,6 +17,7 @@ import "antd/lib/style/index";
 
 import "./App.css";
 import { useEffect, useState } from "react";
+import { QuestionCircleOutlined, RiseOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 
@@ -27,6 +29,8 @@ const App = () => {
   const [tradeType, setTradeType] = useState<"Long" | "Short">("Long");
 
   const [currentStoredValues, setCurrentStoredValues] = useState<{
+    entryPrice: number | undefined;
+    stopLoss: number | undefined;
     quantity: number | undefined;
     risk: number | undefined;
     profit: number | undefined;
@@ -35,6 +39,8 @@ const App = () => {
     portfolioRiskPercentage: number | undefined;
     portfolioBalance: number | undefined;
   }>({
+    stopLoss: undefined,
+    entryPrice: undefined,
     quantity: undefined,
     risk: undefined,
     profit: undefined,
@@ -42,6 +48,11 @@ const App = () => {
     riskRatio: undefined,
     portfolioRiskPercentage: undefined,
     portfolioBalance: undefined,
+  });
+
+  const [positionPreviewHeight, setCurrentPositionHeight] = useState({
+    positionPreviewTPHeight: 0,
+    positionPreviewSLHeight: 0,
   });
 
   const [messageApi, contextHolder] = message.useMessage();
@@ -62,15 +73,14 @@ const App = () => {
     const riskRatio = localStorage.getItem("risk-ratio");
     const balance = localStorage.getItem("balance");
     const riskPercentage = localStorage.getItem("risk-percentage");
-
     setIsSettingsOpen(!riskRatio || !balance || !riskPercentage);
 
-    setCurrentStoredValues({
-      ...currentStoredValues,
+    setCurrentStoredValues((prev) => ({
+      ...prev,
       riskRatio: riskRatio ? +riskRatio : undefined,
       portfolioBalance: balance ? +balance : undefined!,
       portfolioRiskPercentage: riskPercentage ? +riskPercentage : undefined,
-    });
+    }));
   };
 
   const handleOnInvalid = () => {
@@ -78,12 +88,20 @@ const App = () => {
   };
 
   const handleOnCalculate = () => {
-    const entryPrice = form.getFieldValue("entry-price");
+    const {
+      entryPrice: currentEntryPrice,
+      portfolioBalance,
+      portfolioRiskPercentage: currentPortfolioRiskPercentage,
+      riskRatio: currentRiskRatio,
+    } = currentStoredValues;
+
     // Getters
-    const balance = form.getFieldValue("balance");
-    const portfolioRiskPercentage = form.getFieldValue("risk-percentage");
+    const entryPrice = form.getFieldValue("entry-price") || currentEntryPrice;
+    const balance = form.getFieldValue("balance") || portfolioBalance;
+    const portfolioRiskPercentage =
+      form.getFieldValue("risk-percentage") || currentPortfolioRiskPercentage;
     const stopLoss = form.getFieldValue("stop-loss");
-    const riskRatio = form.getFieldValue("risk-ratio-left");
+    const riskRatio = form.getFieldValue("risk-ratio-left") || currentRiskRatio;
 
     // Set Trade type
     setTradeType(stopLoss < entryPrice ? "Long" : "Short");
@@ -107,9 +125,12 @@ const App = () => {
     // Set state
     setCurrentStoredValues({
       ...currentStoredValues,
+      entryPrice: entryPrice,
+      stopLoss: stopLoss,
       quantity: numberOfShares,
       risk: totalRisk,
       profit: riskRatio * totalRisk,
+      riskRatio,
       takeProfit:
         stopLoss < entryPrice
           ? entryPrice + riskPerShare * riskRatio
@@ -124,6 +145,17 @@ const App = () => {
     setIsSettingsOpen(false);
     setIsModalOpen(true);
   };
+
+  useEffect(() => {
+    // Set position preview height
+    const riskRatio = currentStoredValues.riskRatio;
+
+    riskRatio &&
+      setCurrentPositionHeight({
+        positionPreviewTPHeight: (riskRatio * 100) / (riskRatio + 1),
+        positionPreviewSLHeight: 100 / (riskRatio + 1),
+      });
+  }, [currentStoredValues.riskRatio]);
 
   const handleOnClear = () => {
     form.resetFields();
@@ -150,6 +182,11 @@ const App = () => {
 
   const handleCollapseChange = (activeKeys: string | string[]) => {
     setIsSettingsOpen(activeKeys.includes("1"));
+  };
+
+  const generateTPtooltip = () => {
+    const direction = tradeType === "Long" ? "מעל" : "מתחת";
+    return `יש לשים לב כי מחיר ה-TP יכול להימצא ${direction} רמת התנגדות משמעותיות, ולכן יש לבחון האם נקודת המחיר הזו מתאימה לנו. אם לא, ניתן לשנות את יחס הסיכוי/סיכון בהתאם.`;
   };
 
   return (
@@ -210,7 +247,8 @@ const App = () => {
                             <Form.Item
                               name="risk-ratio-left"
                               rules={[{ required: true, message: "הכנס יחס" }]}
-                              initialValue={localStorage.getItem("risk-ratio")}
+                              // initialValue={localStorage.getItem("risk-ratio")}
+                              initialValue={currentStoredValues.riskRatio}
                             >
                               <InputNumber
                                 min={1}
@@ -317,7 +355,9 @@ const App = () => {
           centered
           footer={null}
         >
-          <Space className={styles.formItemGroupContainer}>
+          <Space
+            className={`${styles.formItemGroupContainer} ${styles.positionType}`}
+          >
             <span>סוג עסקה:</span>
             <Button
               type="link"
@@ -330,12 +370,40 @@ const App = () => {
                 copyToClipboard(tradeType);
               }}
             >
+              <RiseOutlined
+                style={{ transform: tradeType === "Long" ? "" : "scaleY(-1)" }}
+              />
               {tradeType}
             </Button>
           </Space>
 
-          <Space style={{ justifyContent: "space-between", width: "100%" }}>
-            <Space direction="vertical" style={{ rowGap: 0 }}>
+          <Space
+            style={{ width: "100%", columnGap: "2rem", alignItems: "start" }}
+          >
+            <Space
+              direction="vertical"
+              style={{
+                rowGap: 0,
+                borderLeft: "1px solid #dddddd",
+                paddingLeft: "1.5rem",
+              }}
+            >
+              <Space className={styles.formItemGroupContainer}>
+                <span>מחיר כניסה:</span>
+                {currentStoredValues.entryPrice && (
+                  <Button
+                    type="link"
+                    size="small"
+                    className={styles.iconButton}
+                    onClick={() => {
+                      copyToClipboard(currentStoredValues.entryPrice);
+                    }}
+                  >
+                    {formatNumberToAmount(currentStoredValues.entryPrice)}
+                  </Button>
+                )}
+              </Space>
+
               <Space className={styles.formItemGroupContainer}>
                 <span>כמות לקניה:</span>
                 {currentStoredValues.quantity && (
@@ -353,18 +421,44 @@ const App = () => {
               </Space>
 
               <Space className={styles.formItemGroupContainer}>
-                <span>יעד הרווח הראשוני (TP):</span>
-                {currentStoredValues.takeProfit && (
+                <span>Stop loss:</span>
+                {currentStoredValues.stopLoss && (
                   <Button
                     type="link"
                     size="small"
                     className={styles.iconButton}
                     onClick={() => {
-                      copyToClipboard(currentStoredValues.takeProfit);
+                      copyToClipboard(currentStoredValues.stopLoss);
                     }}
                   >
-                    {formatNumberToAmount(currentStoredValues.takeProfit)}
+                    {formatNumberToAmount(currentStoredValues.stopLoss)}
                   </Button>
+                )}
+              </Space>
+
+              <Space className={styles.formItemGroupContainer}>
+                <span>Take profit:</span>
+                {currentStoredValues.takeProfit && (
+                  <div>
+                    <Tooltip
+                      overlayStyle={{ maxWidth: "400px" }}
+                      title={generateTPtooltip()}
+                    >
+                      <QuestionCircleOutlined
+                        style={{ color: "#213547", cursor: "pointer" }}
+                      />
+                    </Tooltip>
+                    <Button
+                      type="link"
+                      size="small"
+                      className={styles.iconButton}
+                      onClick={() => {
+                        copyToClipboard(currentStoredValues.takeProfit);
+                      }}
+                    >
+                      {formatNumberToAmount(currentStoredValues.takeProfit)}
+                    </Button>
+                  </div>
                 )}
               </Space>
             </Space>
@@ -403,7 +497,115 @@ const App = () => {
                   </Button>
                 )}
               </Space>
+
+              
+              <Space className={styles.formItemGroupContainer}>
+                <span>יחס סיכוי/סיכון:</span>
+                {currentStoredValues.profit && (
+                  <Button
+                    type="link"
+                    size="small"
+                    className={styles.iconButton}
+                    onClick={() => {
+                      copyToClipboard(`1 : ${currentStoredValues.riskRatio}`);
+                    }}
+                  >
+                    {`${currentStoredValues.riskRatio} : 1`}
+                  </Button>
+                )}
+              </Space>
             </Space>
+          </Space>
+
+          <Space
+            className={styles.positionPreviewWrapper}
+            style={{ justifyContent: "center" }}
+          >
+            <div
+              className={`${styles.positionPreviewContainer} ${
+                tradeType === "Short" ? styles.short : ""
+              }`}
+            >
+              <div
+                className={`${styles.positionPreviewTakeProfit} `}
+                style={{
+                  height: `${positionPreviewHeight.positionPreviewTPHeight}%`,
+                }}
+              >
+                <Button
+                  type="text"
+                  size="large"
+                  className={`${styles.iconButton} ${styles.previewInnerIconContainer}`}
+                  onClick={() => {
+                    copyToClipboard(currentStoredValues.profit);
+                  }}
+                >
+                  <b>{formatNumberToAmount(currentStoredValues.profit)}</b>
+                  <span>סה"כ רווח</span>
+                </Button>
+
+                <Button
+                  type="text"
+                  size="large"
+                  className={`${styles.iconButton} ${
+                    styles.previewIconContainer
+                  } ${tradeType === "Short" ? styles.shortTP : ""}`}
+                  onClick={() => {
+                    copyToClipboard(currentStoredValues.takeProfit);
+                  }}
+                >
+                  <b>{formatNumberToAmount(currentStoredValues.takeProfit)}</b>
+                  <span>Take profit</span>
+                </Button>
+              </div>
+              <div className={styles.positionPreviewDivider}>
+                <Button
+                  type="text"
+                  size="large"
+                  className={`${styles.iconButton} ${styles.previewIconContainer}`}
+                  onClick={() => {
+                    copyToClipboard(currentStoredValues.entryPrice);
+                  }}
+                >
+                  <b>{formatNumberToAmount(currentStoredValues.entryPrice)}</b>
+                  <span>מחיר כניסה</span>
+                </Button>
+              </div>
+              <div
+                className={styles.positionPreviewStopLoss}
+                style={{
+                  height: `${positionPreviewHeight.positionPreviewSLHeight}%`,
+                }}
+              >
+                <Button
+                  type="text"
+                  size="large"
+                  className={`${styles.iconButton} ${styles.previewInnerIconContainer}`}
+                  onClick={() => {
+                    copyToClipboard(currentStoredValues.risk);
+                  }}
+                >
+                  <b>{formatNumberToAmount(currentStoredValues.risk)}</b>
+                  <span>סה"כ סיכון</span>
+                </Button>
+
+                <Button
+                  type="text"
+                  size="large"
+                  className={`${styles.iconButton} ${
+                    styles.previewIconContainer
+                  } ${styles.previewIconContainerButtom} ${
+                    tradeType === "Short" ? styles.shortSL : ""
+                  }`}
+                  onClick={() => {
+                    copyToClipboard(currentStoredValues.stopLoss);
+                  }}
+                >
+                  <b>{formatNumberToAmount(currentStoredValues.stopLoss)}</b>
+                  <span>Stop loss</span>
+                </Button>
+              </div>
+            </div>
           </Space>
         </Modal>
       </ConfigProvider>

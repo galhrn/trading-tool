@@ -13,7 +13,6 @@ import {
 
 import styles from "./styles.module.scss";
 import "antd/lib/style/index";
-
 import "./App.css";
 import { useEffect, useState } from "react";
 

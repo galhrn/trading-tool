@@ -78,8 +78,9 @@
   }
 }
 
-.formItemGroupContainer {
+.formItemGroupContainer:not(.positionType) {
   display: flex;
+  justify-content: space-between;
 }
 
 .riskContainer {
@@ -110,6 +111,117 @@
   align-items: center;
   padding: 0.5rem 1rem 0 0.5rem;
   justify-content: center;
+}
+
+.transitionDataRightSection {
+  border: 1px solid red;
+}
+
+.positionPreviewWrapper {
+  padding: 3rem;
+  box-sizing: border-box;
+
+  .positionPreviewContainer.short {
+    position: relative;
+    flex-direction: column-reverse;
+  }
+
+  .positionPreviewContainer {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    height: 22rem;
+    width: 8rem;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px,
+      rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
+
+    .positionPreviewTakeProfit {
+      position: relative;
+      height: calc(100% / 3) * 2;
+      background-color: #089981;
+      align-items: center;
+      justify-content: center;
+      display: flex;
+    }
+
+    .positionPreviewDivider {
+      position: relative;
+      height: 1px;
+      background-color: white;
+    }
+
+    .positionPreviewStopLoss {
+      position: relative;
+      background-color: #f23645;
+      height: calc(100% / 3) * 1;
+      justify-content: flex-end;
+      align-items: center;
+      justify-content: center;
+      display: flex;
+    }
+
+    .previewIconContainer {
+      position: absolute;
+      left: -6rem;
+      top: -3.6rem;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      height: auto;
+      width: 6rem;
+      border-bottom: 1px dashed gray;
+      border-radius: 0;
+    }
+
+    .previewIconContainer > span {
+      font-size: 12px;
+    }
+
+    .previewIconContainer.shortSL {
+      bottom: auto;
+      top: -3.6rem;
+    }
+
+    .previewIconContainer.shortTP {
+      top: auto;
+      bottom: 0rem;
+    }
+
+    .previewIconContainerButtom {
+      position: absolute;
+      bottom: 0;
+      top: auto;
+    }
+
+    .previewMiddleTextContainer {
+      right: -8rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #089981;
+      font-weight: 400;
+      font-size: 14px;
+    }
+
+    .previewMiddleTextContainer.red {
+      color: #f23645;
+    }
+
+    .previewInnerIconContainer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 14px;
+      color: white;
+      height: auto;
+
+      b {
+        font-weight: 400;
+        font-size: 16px;
+      }
+    }
+  }
 }
 
 @media screen and (max-width: 768px) {

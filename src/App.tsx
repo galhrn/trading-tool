@@ -497,6 +497,23 @@ const App = () => {
                   </Button>
                 )}
               </Space>
+
+              
+              <Space className={styles.formItemGroupContainer}>
+                <span>יחס סיכוי/סיכון:</span>
+                {currentStoredValues.profit && (
+                  <Button
+                    type="link"
+                    size="small"
+                    className={styles.iconButton}
+                    onClick={() => {
+                      copyToClipboard(`1 : ${currentStoredValues.riskRatio}`);
+                    }}
+                  >
+                    {`${currentStoredValues.riskRatio} : 1`}
+                  </Button>
+                )}
+              </Space>
             </Space>
           </Space>
 

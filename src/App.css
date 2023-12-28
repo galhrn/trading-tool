@@ -67,7 +67,13 @@ body {
 .ant-collapse {
   border: 1px solid #403c49;
   border-radius: 8px !important;
-  margin-top: 2rem;
+  margin-top: 1rem;
+}
+
+.ant-modal-body {
+  row-gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes logo-spin {
